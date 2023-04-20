@@ -10,8 +10,26 @@
 // 2. determine which objects the ray intersects
 // 3. compute a colour for that intersection point
 
-// return colour of the background
+// ray-sphere intersection
+// ray: p(t) = A + t*B
+// sphere: (p-C).(p-C) = r^2
+// (A + t*B - C).(A + t*B - C) = r^2
+// t^2*B.B + 2*t*B.(A-C) + (A-C).(A-C) - r^2 = 0
+bool hit_sphere(const point3& center, double radius, const ray& r) {
+    vec3 oc = r.origin() - center;
+    auto a = dot(r.direction(), r.direction());
+    auto b = 2.0 * dot(oc, r.direction());
+    auto c = dot(oc, oc) - radius*radius;
+    auto discriminant = b*b - 4*a*c;
+    return (discriminant > 0);
+}
+
 colour ray_colour(const ray& r) {
+    // sphere at -1 on the z axis
+    if (hit_sphere(point3(0, 0, -1), 0.5, r))
+        return colour(1, 0, 0);
+
+    // return colour of the background
     vec3 unit_direction = unit_vector(r.direction());
     double t = 0.5*(unit_direction.y() + 1.0);
     // linear interpolation between white (t=0) and blue (t=1)

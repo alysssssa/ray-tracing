@@ -1,7 +1,8 @@
 
+#include "raytracer.h"
 #include "colour.h"
-#include "vec3.h"
-#include "ray.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
 #include <iostream>
 
@@ -10,49 +11,18 @@
 // 2. determine which objects the ray intersects
 // 3. compute a colour for that intersection point
 
-// ray-sphere intersection
-// ray: p(t) = A + t*B
-// sphere: (p-C).(p-C) = r^2
-// (A + t*B - C).(A + t*B - C) = r^2
-// t^2*B.B + 2*t*B.(A-C) + (A-C).(A-C) - r^2 = 0
-//bool hit_sphere(const point3& center, double radius, const ray& r) {
-//    vec3 oc = r.origin() - center;
-//    auto a = dot(r.direction(), r.direction());
-//    auto b = 2.0 * dot(oc, r.direction());
-//    auto c = dot(oc, oc) - radius*radius;
-//    auto discriminant = b*b - 4*a*c;
-//    return (discriminant > 0);
-//}
-double hit_sphere(const point3& center, double radius, const ray& r) {
-    vec3 oc = r.origin() - center;
-    auto a = r.direction().length_squared();
-    auto half_b = dot(oc, r.direction());
-    auto c = oc.length_squared() - radius*radius;
-    auto discriminant = half_b*half_b - a*c;
-
-    if (discriminant < 0) {
-        return -1.0;
-    } else {
-        return (-half_b - sqrt(discriminant)) / a; // return the smallest t
-    }
-}
-
-colour ray_colour(const ray& r) {
-    // sphere at -1 on the z axis
-//    if (hit_sphere(point3(0, 0, -1), 0.5, r))
-//        return colour(1, 0, 0);
+colour ray_colour(const ray& r, const hittable& world) {
+    hit_record rec;
 
     // visualize the normal: map each component to the interval [0,1]
     // then map x/y/z to r/g/b
-    auto t = hit_sphere(point3(0, 0, -1), 0.5, r);
-    if (t > 0.0) {
-        vec3 N = unit_vector(r.at(t) - vec3(0, 0, -1));
-        return 0.5*colour(N.x()+1, N.y()+1, N.z()+1);
+    if (world.hit(r, 0, infinity, rec)) {
+        return 0.5*(rec.normal + colour(1, 1, 1));
     }
 
     // return colour of the background
     vec3 unit_direction = unit_vector(r.direction());
-    t = 0.5*(unit_direction.y() + 1.0);
+    auto t = 0.5*(unit_direction.y() + 1.0);
     // linear interpolation between white (t=0) and blue (t=1)
     // blended_value = (1-t)*start_value + t*end_value
     return (1.0-t)*colour(1.0, 1.0, 1.0) + t*colour(0.5, 0.7, 1.0);
@@ -64,6 +34,11 @@ int main() {
     const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
+
+    // world
+    hittable_list world;
+    world.add(make_shared<sphere>(point3(0, 0, -1), 0.5));
+    world.add(make_shared<sphere>(point3(0, -100.5, -1), 100));
 
     // camera
     // x - right, y - up, z - out of the screen
@@ -88,7 +63,7 @@ int main() {
             auto u = double(i) / (image_width-1);
             auto v = double(j) / (image_height-1);
             ray r(origin, lower_left_corner + u*horizontal + v*vertical - origin);
-            colour pixel_colour = ray_colour(r);
+            colour pixel_colour = ray_colour(r, world);
             write_colour(std::cout, pixel_colour);
         }
     }

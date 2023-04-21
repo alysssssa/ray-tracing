@@ -18,6 +18,11 @@ class sphere : public hittable {
 };
 
 bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
+    // ray-sphere intersection
+    // ray: p(t) = A + t*B
+    // sphere: (p-C).(p-C) = r^2
+    // (A + t*B - C).(A + t*B - C) = r^2
+    // t^2*B.B + 2*t*B.(A-C) + (A-C).(A-C) - r^2 = 0
     vec3 oc = r.origin() - center;
     auto a = r.direction().length_squared();
     auto half_b = dot(oc, r.direction());
@@ -29,10 +34,13 @@ bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) cons
 
     // find the nearest root that lies in the acceptable range
     auto root = (-half_b - sqrtd) / a;
-    if (root < t_min || t_max < root) return false;
-    if (root > t_min && t_max > root) {
-        root = (-half_b + sqrtd) / a;
-    }
+    // if root is not in the acceptable range, try the other root
+    if (root < t_min || t_max < root) {
+            root = (-half_b + sqrtd) / a;
+            if (root < t_min || t_max < root) {
+                return false;
+            }
+        }
 
     rec.t = root;
     rec.p = r.at(rec.t);

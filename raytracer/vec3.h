@@ -116,5 +116,10 @@ inline vec3 random_in_unit_sphere() {
     }
 }
 
+// lambertian distribution - picking random points on the unit sphere, offset along the surface normal
+// picking random points on the unit sphere - picking random points in the unit sphere then normalizing them
+vec3 random_unit_vector() {
+    return unit_vector(random_in_unit_sphere());
+}
 
 #endif // VEC3_H

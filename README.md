@@ -24,3 +24,10 @@ This decision is determined by whether you want to determine the side of the sur
 Generating a random diffuse bounce ray:
 There are two unit radius spheres tangent to the hit point 𝑝 of a surface. These two spheres have a center of (𝐏+𝐧) and (𝐏−𝐧), where 𝐧 is the normal of the surface. The sphere with a center at (𝐏−𝐧) is considered inside the surface, whereas the sphere with center (𝐏+𝐧) is considered outside the surface. Select the tangent unit radius sphere that is on the same side of the surface as the ray origin...
 
+
+#### ⭐️ Design decision: material 
+For different objects to have different materials
+* a universal material with lots of parameters and different material types just zero out some of those parameters
+* an abstract material class that encapsulates behaviour
+
+

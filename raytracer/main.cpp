@@ -12,13 +12,19 @@
 // 2. determine which objects the ray intersects
 // 3. compute a colour for that intersection point
 
-colour ray_colour(const ray& r, const hittable& world) {
+colour ray_colour(const ray& r, const hittable& world, int depth) {
     hit_record rec;
+
+    // limit the maximum recursion depth, returning no light contribution at the maximum depth
+    if (depth <= 0)
+        return {0,0,0};
 
     // visualize the normal: map each component to the interval [0,1]
     // then map x/y/z to r/g/b
+    // generating a random diffuse bounce ray from hit point to random point (on the unit sphere from center p+n)
     if (world.hit(r, 0, infinity, rec)) {
-        return 0.5*(rec.normal + colour(1, 1, 1));
+        point3 target = rec.p + rec.normal + random_in_unit_sphere();
+        return 0.5*ray_colour(ray(rec.p, target-rec.p), world, depth-1);
     }
 
     // return colour of the background
@@ -36,6 +42,7 @@ int main() {
     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
     const int samples_per_pixel = 100;
+    const int max_depth = 50;
 
     // world
     hittable_list world;
@@ -59,7 +66,7 @@ int main() {
                 auto u = (i + random_double()) / (image_width-1);
                 auto v = (j + random_double()) / (image_height-1);
                 ray r = cam.get_ray(u, v);
-                pixel_colour += ray_colour(r, world);
+                pixel_colour += ray_colour(r, world, max_depth);
             }
             write_colour(std::cout, pixel_colour, samples_per_pixel);
         }

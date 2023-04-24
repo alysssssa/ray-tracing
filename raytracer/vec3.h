@@ -16,7 +16,7 @@ class vec3 {
         double y() const { return e[1]; }
         double z() const { return e[2]; }
 
-        vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
+        vec3 operator-() const { return {-e[0], -e[1], -e[2]}; }
         double operator[](int i) const { return e[i]; }
         double& operator[](int i) { return e[i]; }
 
@@ -46,6 +46,14 @@ class vec3 {
             return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
         }
 
+        inline static vec3 random() {
+            return {random_double(), random_double(), random_double()};
+        }
+
+        inline static vec3 random(double min, double max) {
+            return {random_double(min, max), random_double(min, max), random_double(min, max)};
+        }
+
     public:
         double e[3];
 };
@@ -59,19 +67,19 @@ inline std::ostream& operator<<(std::ostream &out, const vec3 &v) {
 }
 
 inline vec3 operator+(const vec3 &u, const vec3 &v) {
-    return vec3(u.e[0] + v.e[0] , u.e[1] + v.e[1], u.e[2] + v.e[2]);
+    return {u.e[0] + v.e[0] , u.e[1] + v.e[1], u.e[2] + v.e[2]};
 }
 
 inline vec3 operator-(const vec3 &u, const vec3 &v) {
-    return vec3(u.e[0] - v.e[0] , u.e[1] - v.e[1], u.e[2] - v.e[2]);
+    return {u.e[0] - v.e[0] , u.e[1] - v.e[1], u.e[2] - v.e[2]};
 }
 
 inline vec3 operator*(const vec3 &u, const vec3 &v) {
-    return vec3(u.e[0] * v.e[0] , u.e[1] * v.e[1], u.e[2] * v.e[2]);
+    return {u.e[0] * v.e[0] , u.e[1] * v.e[1], u.e[2] * v.e[2]};
 }
 
 inline vec3 operator*(double t, const vec3 &v) {
-    return vec3(t*v.e[0], t*v.e[1], t*v.e[2]);
+    return {t*v.e[0], t*v.e[1], t*v.e[2]};
 }
 
 inline vec3 operator*(const vec3 &v, double t) {
@@ -87,13 +95,26 @@ inline double dot(const vec3 &u, const vec3 &v) {
 }
 
 inline vec3 cross(const vec3 &u, const vec3 &v) {
-    return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
+    return {u.e[1] * v.e[2] - u.e[2] * v.e[1],
                 u.e[2] * v.e[0] - u.e[0] * v.e[2],
-                u.e[0] * v.e[1] - u.e[1] * v.e[0]);
+                u.e[0] * v.e[1] - u.e[1] * v.e[0]};
 }
 
 inline vec3 unit_vector(vec3 v) {
     return v/v.length();
 }
+
+// to pick a random point in a unit radius sphere
+// a rejection method (usually the easiest algorithm)
+// 1. pick a random point in a cube
+// 2. reject the point if it is not in the sphere
+inline vec3 random_in_unit_sphere() {
+    while (true) {
+        auto p = vec3::random(-1, 1);
+        if (p.length_squared() >= 1) continue;
+        return p;
+    }
+}
+
 
 #endif // VEC3_H

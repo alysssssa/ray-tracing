@@ -3,10 +3,18 @@
 #define HITTABLE_H
 
 #include "ray.h"
+#include "raytracer.h"
 
+class material;
+
+// when a ray hits a surface (e.g. a sphere), the material pointer in the hit_record will be set to point
+// at the material pointer the sphere was created with
+// when the ray_colour() routine gets the hit_record, it can call member functions of the material pointer
+// to find out what ray, if any, is scattered
 struct hit_record {
     point3 p;
     vec3 normal;
+    shared_ptr<material> mat_ptr;
     double t;
     bool front_face; // determine which side of the surface the ray is hitting
 

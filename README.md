@@ -30,4 +30,4 @@ For different objects to have different materials
 * a universal material with lots of parameters and different material types just zero out some of those parameters
 * an abstract material class that encapsulates behaviour
 
-
+Clear materials such as water, glass, and diamonds are dielectrics. When a light ray hits them, it splits into a reflected ray and a refracted (transmitted) ray. We’ll handle that by randomly choosing between reflection or refraction, and only generating one scattered ray per interaction.

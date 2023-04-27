@@ -4,6 +4,7 @@
 #include "hittable_list.h"
 #include "sphere.h"
 #include "camera.h"
+#include "material.h"
 
 #include <iostream>
 
@@ -19,14 +20,14 @@ colour ray_colour(const ray& r, const hittable& world, int depth) {
     if (depth <= 0)
         return {0,0,0};
 
-    // visualize the normal: map each component to the interval [0,1]
-    // then map x/y/z to r/g/b
     // generating a random diffuse bounce ray from hit point to random point (on the unit sphere from center p+n)
     // shadow acne: ignore hits very near zero (t_min = 0.001)
     if (world.hit(r, 0.001, infinity, rec)) {
-        // point3 target = rec.p + rec.normal + random_unit_vector(); // lambertian diffuse
-        point3 target = rec.p + random_in_hemisphere(rec.normal); // hemispherical scattering
-        return 0.5*ray_colour(ray(rec.p, target-rec.p), world, depth-1);
+        ray scattered;
+        colour attenuation;
+        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+            return attenuation * ray_colour(scattered, world, depth-1);
+        return {0,0,0};
     }
 
     // return colour of the background
@@ -48,8 +49,16 @@ int main() {
 
     // world
     hittable_list world;
-    world.add(make_shared<sphere>(point3(0, 0, -1), 0.5));
-    world.add(make_shared<sphere>(point3(0, -100.5, -1), 100));
+
+    auto material_ground = make_shared<lambertian>(colour(0.8, 0.8, 0.0));
+    auto material_center = make_shared<lambertian>(colour(0.7, 0.3, 0.3));
+    auto material_left = make_shared<metal>(colour(0.8, 0.8, 0.8));
+    auto material_right = make_shared<metal>(colour(0.8, 0.6, 0.2));
+
+    world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
+    world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.0),   0.5, material_center));
+    world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
+    world.add(make_shared<sphere>(point3(1.0,    0.0, -1.0), 0.5, material_right));
 
     // camera
     camera cam;

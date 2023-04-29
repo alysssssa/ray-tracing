@@ -48,22 +48,17 @@ int main() {
     const int max_depth = 50;
 
     // world
+    auto R = cos(pi/4);
     hittable_list world;
 
-    auto material_ground = make_shared<lambertian>(colour(0.8, 0.8, 0.0));
-    auto material_center = make_shared<lambertian>(colour(0.1, 0.2, 0.5));
-    auto material_left = make_shared<dielectric>(1.5);
-    auto material_right = make_shared<metal>(colour(0.8, 0.6, 0.2), 0.0);
+    auto material_left = std::make_shared<lambertian>(colour(0, 0, 1));
+    auto material_right = std::make_shared<lambertian>(colour(1, 0, 0));
 
-    world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
-    world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.0),   0.5, material_center));
-    world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
-    // making a hollow glass sphere - with negative radius (the geometry is unaffected, but the surface normal points inward
-    world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   -0.4, material_left));
-    world.add(make_shared<sphere>(point3(1.0,    0.0, -1.0), 0.5, material_right));
+    world.add(std::make_shared<sphere>(point3(-R, 0, -1), R, material_left));
+    world.add(std::make_shared<sphere>(point3(R, 0, -1), R, material_right));
 
-    // camera
-    camera cam;
+    // camera - scene with wide-angle view
+    camera cam(90, aspect_ratio);
 
     // ppm format:
     // P3 - colours in ASCII; column number; row number; 255 - for max colour;

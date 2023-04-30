@@ -5,6 +5,7 @@
 #include "sphere.h"
 #include "camera.h"
 #include "material.h"
+#include "moving_sphere.h"
 
 #include <iostream>
 
@@ -57,7 +58,8 @@ hittable_list random_scene() {
                 if (choose_mat < 0.8) {
                     auto albedo = colour::random() * colour::random();
                     sphere_material = make_shared<lambertian>(albedo);
-                    world.add(make_shared<sphere>(center, 0.2, sphere_material));
+                    auto center2 = center + vec3(0, random_double(0, 0.5), 0);
+                    world.add(make_shared<moving_sphere>(center, center2, 0.0, 1.0, 0.2, sphere_material));
                 // metal
                 } else if (choose_mat < 0.95) {
                     auto albedo = colour::random(0.5, 1);
@@ -80,7 +82,7 @@ hittable_list random_scene() {
     world.add(make_shared<sphere>(point3(-4,1,0), 1.0, material2));
 
     auto material3 = make_shared<metal>(colour(0.7, 0.6, 0.5), 0.0);
-world.add(make_shared<sphere>(point3(4,1,0), 1.0, material3));
+    world.add(make_shared<sphere>(point3(4,1,0), 1.0, material3));
 
     return world;
 }
@@ -88,10 +90,10 @@ world.add(make_shared<sphere>(point3(4,1,0), 1.0, material3));
 int main() {
 
     // write output image in ppm
-    const auto aspect_ratio = 3.0 / 2.0;
-    const int image_width = 1200;
+    const auto aspect_ratio = 16.0 / 9.0;
+    const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 1;
+    const int samples_per_pixel = 50;
     const int max_depth = 50;
 
     // world
@@ -104,7 +106,7 @@ int main() {
     auto dist_to_focus = 10.0;
     auto aperture = 0.1;
 
-    camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+    camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
     // ppm format:
     // P3 - colours in ASCII; column number; row number; 255 - for max colour;

@@ -31,3 +31,7 @@ For different objects to have different materials
 * an abstract material class that encapsulates behaviour
 
 Clear materials such as water, glass, and diamonds are dielectrics. When a light ray hits them, it splits into a reflected ray and a refracted (transmitted) ray. We’ll handle that by randomly choosing between reflection or refraction, and only generating one scattered ray per interaction.
+
+
+#### 📕 Bounding Volume Hierarchies
+The ray-object intersection is the main time-bottleneck in a ray tracer, and the time is linear with the number of objects. But it’s a repeated search on the same model, so we ought to be able to make it a logarithmic search in the spirit of binary search. Because we are sending millions to billions of rays on the same model, we can do an analog of sorting the model, and then each ray intersection can be a sublinear search. The two most common families of sorting are to 1) divide the space, and 2) divide the objects. The latter is usually much easier to code up and just as fast to run for most models.

@@ -61,8 +61,14 @@ int main() {
     world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), -0.45, material_left));
     world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
 
-    // camera
-    camera cam(point3(-2,2,1), point3(0,0,-1), vec3(0,1,0), 20, aspect_ratio);
+    // camera with depth of field
+    point3 lookfrom(3,3,2);
+    point3 lookat(0,0,-1);
+    vec3 vup(0,1,0);
+    auto dist_to_focus = (lookfrom-lookat).length();
+    auto aperture = 2.0;
+
+    camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
 
     // ppm format:
     // P3 - colours in ASCII; column number; row number; 255 - for max colour;

@@ -6,6 +6,8 @@
 #include "hittable.h"
 #include "hittable_list.h"
 
+#include <algorithm>
+
 // bounding volume hierarchy
 
 class bvh_node : public hittable {

@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "material.h"
 #include "moving_sphere.h"
+#include "bvh.h"
 
 #include <iostream>
 
@@ -58,8 +59,10 @@ hittable_list random_scene() {
                 if (choose_mat < 0.8) {
                     auto albedo = colour::random() * colour::random();
                     sphere_material = make_shared<lambertian>(albedo);
-                    auto center2 = center + vec3(0, random_double(0, 0.5), 0);
-                    world.add(make_shared<moving_sphere>(center, center2, 0.0, 1.0, 0.2, sphere_material));
+                    world.add(make_shared<sphere>(center, 0.2, sphere_material));
+                    // motion blur
+                    // auto center2 = center + vec3(0, random_double(0, 0.5), 0);
+                    // world.add(make_shared<moving_sphere>(center, center2, 0.0, 1.0, 0.2, sphere_material));
                 // metal
                 } else if (choose_mat < 0.95) {
                     auto albedo = colour::random(0.5, 1);
@@ -84,7 +87,7 @@ hittable_list random_scene() {
     auto material3 = make_shared<metal>(colour(0.7, 0.6, 0.5), 0.0);
     world.add(make_shared<sphere>(point3(4,1,0), 1.0, material3));
 
-    return world;
+    return hittable_list(make_shared<bvh_node>(world, 0.0, 1.0));
 }
 
 int main() {

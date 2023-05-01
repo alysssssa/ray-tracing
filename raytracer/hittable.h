@@ -4,6 +4,7 @@
 
 #include "ray.h"
 #include "raytracer.h"
+#include "aabb.h"
 
 class material;
 
@@ -28,6 +29,9 @@ struct hit_record {
 class hittable {
     public:
         virtual bool hit(const ray& r, double t_min, double t_max, hit_record& rec) const = 0;
+        // not all primitives have bounding boxes (e.g. infinite plane)
+        // moving objects have bounding box enclosing the object for the entire time interval
+        virtual bool bounding_box(double time0, double time1, aabb& output_box) const = 0;
 };
 
 #endif // HITTABLE_H

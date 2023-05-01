@@ -6,7 +6,7 @@
 #include <limits>
 #include <memory>
 #include <cstdlib>
-//#include <random>
+#include <random>
 
 using std::shared_ptr;
 using std::make_shared;
@@ -21,23 +21,23 @@ inline double degrees_to_radians(double degrees) {
     return degrees * pi / 180.0;
 }
 
+// alternative random number generator
+//inline double random_double() {
+//    // random number in [0,1)
+//    return rand() / (RAND_MAX + 1.0);
+//}
+
 inline double random_double() {
     // random number in [0,1)
-    return rand() / (RAND_MAX + 1.0);
+    static std::uniform_real_distribution<double> distribution(0.0,1.0);
+    static std::mt19937 generator;
+    return distribution(generator);
 }
 
 inline double random_double(double min, double max) {
     // random number in [min,max)
     return min + (max-min)*random_double();
 }
-
-// alternative random number generator
-//inline double random_double2() {
-//    // random number in [0,1)
-//    static std::uniform_real_distribution<double> distribution(0.0,1.0);
-//    static std::mt19937 generator;
-//    return distribution(generator);
-//}
 
 inline int random_int(int min, int max) {
     // random integer in [min,max]

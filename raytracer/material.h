@@ -3,6 +3,7 @@
 #define MATERIAL_H
 
 #include "raytracer.h"
+#include "texture.h"
 
 // abstract class for materials
 // 1. produce a scattered ray (or say that the incident ray is absorbed)
@@ -19,7 +20,8 @@ class material {
 
 class lambertian : public material {
     public:
-        lambertian(const colour& a) : albedo(a) {}
+        explicit lambertian(const colour& a) : albedo(make_shared<solid_colour>(a)) {}
+        explicit lambertian(shared_ptr<texture> a) : albedo(a) {}
 
         virtual bool scatter(
             const ray& r_in, const hit_record& rec, colour& attenuation, ray& scattered
@@ -32,12 +34,12 @@ class lambertian : public material {
                 scatter_direction = rec.normal;
 
             scattered = ray(rec.p, scatter_direction, r_in.time());
-            attenuation = albedo;
+            attenuation = albedo->value(rec.u, rec.v, rec.p);
             return true;
         }
 
     public:
-        colour albedo;
+        shared_ptr<texture> albedo;
 };
 
 class metal : public material {
@@ -60,7 +62,7 @@ class metal : public material {
 
 class dielectric : public material {
     public:
-        dielectric(double index_of_refraction) : ir(index_of_refraction) {}
+        explicit dielectric(double index_of_refraction) : ir(index_of_refraction) {}
 
         virtual bool scatter(
             const ray& r_in, const hit_record& rec, colour& attenuation, ray& scattered

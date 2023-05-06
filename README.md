@@ -35,3 +35,10 @@ Clear materials such as water, glass, and diamonds are dielectrics. When a light
 
 #### 📕 Bounding Volume Hierarchies
 The ray-object intersection is the main time-bottleneck in a ray tracer, and the time is linear with the number of objects. But it’s a repeated search on the same model, so we ought to be able to make it a logarithmic search in the spirit of binary search. Because we are sending millions to billions of rays on the same model, we can do an analog of sorting the model, and then each ray intersection can be a sublinear search. The two most common families of sorting are to 1) divide the space, and 2) divide the objects. The latter is usually much easier to code up and just as fast to run for most models.
+
+
+#### Perlin Noise
+> A key part of Perlin noise is that it is repeatable: it takes a 3D point as input and always returns the same randomish number. Nearby points return similar numbers. Another important part of Perlin noise is that it be simple and fast, so it’s usually done as a hack.
+
+
+

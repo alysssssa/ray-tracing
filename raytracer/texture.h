@@ -56,7 +56,9 @@ class noise_texture : public texture {
 
         virtual colour value(double u, double v, const vec3& p) const override {
             // return colour(1, 1, 1) * 0.5 * (1.0 + noise.noise(scale*p));
-            return colour(1, 1, 1) * noise.turb(scale*p);
+            // return colour(1, 1, 1) * noise.turb(scale*p);
+            // the “hello world” of procedural solid textures - marble
+            return colour(1,1,1) * 0.5 * (1 + sin(scale*p.z() + 10*noise.turb(p)));
         }
 
     public:

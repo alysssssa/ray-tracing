@@ -53,3 +53,5 @@ hittable_list earth() {
 ```
 > We start to see some of the power of all colors being textures — we can assign any kind of texture to the lambertian material, and lambertian doesn’t need to be aware of it.
 
+#### 💫 Instances
+`Now that we have boxes, we need to rotate them a bit to have them match the real Cornell box. In ray tracing, this is usually done with an instance. An instance is a geometric primitive that has been moved or rotated somehow. This is especially easy in ray tracing because we don’t move anything; instead we move the rays in the opposite direction.`

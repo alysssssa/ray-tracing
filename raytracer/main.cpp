@@ -190,6 +190,48 @@ hittable_list cornell_smoke() {
     return objects;
 }
 
+hittable_list popcorn_box() {
+    hittable_list boxes1;
+    auto ground = make_shared<lambertian>(colour(0.48, 0.83, 0.53));
+
+    const int boxes_per_side = 20;
+    for (int i = 0; i < boxes_per_side; i++) {
+        for (int j = 0; j < boxes_per_side; j++) {
+            auto w = 100.0;
+            auto x0 = -1000.0 + i*w;
+            auto z0 = -1000.0 + j*w;
+            auto y0 = 0.0;
+            auto x1 = x0 + w;
+            auto y1 = random_double(1,101);
+            auto z1 = z0 + w;
+
+            boxes1.add(make_shared<box>(point3(x0,y0,z0), point3(x1,y1,z1), ground));
+        }
+    }
+
+    hittable_list objects;
+
+    objects.add(make_shared<bvh_node>(boxes1, 0, 1));
+
+    auto light = make_shared<diffuse_light>(colour(7, 7, 7));
+    objects.add(make_shared<xz_rect>(123, 423, 147, 412, 554, light));
+
+    hittable_list boxes2;
+    auto white = make_shared<lambertian>(colour(0.73, 0.73, 0.73));
+    int ns = 1000;
+    for (int j = 0; j < ns; j++) {
+        boxes2.add(make_shared<sphere>(point3::random(0,165), 10, white));
+    }
+
+    objects.add(make_shared<translate>(
+        make_shared<rotate_y>(
+            make_shared<bvh_node>(boxes2, 0.0, 1.0), 15),
+            vec3(-100,270,395)
+    ));
+
+    return objects;
+}
+
 int main() {
 
     // write output image in ppm
@@ -197,7 +239,7 @@ int main() {
     // const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 600;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 100;
+    const int samples_per_pixel = 50;
     const int max_depth = 50;
 
     // world
@@ -259,12 +301,20 @@ int main() {
             vfov = 40.0;
             break;
 
-        default:
         case 7:
             world = cornell_smoke();
             background = colour(0,0,0);
             lookfrom = point3(278, 278, -800);
             lookat = point3(278, 278, 0);
+            vfov = 40.0;
+            break;
+
+        default:
+        case 8:
+            world = popcorn_box();
+            background = colour(0,0,0);
+            lookfrom = point3(278, 278, -800);
+            lookat = point3(278, 240, 0);
             vfov = 40.0;
             break;
     }

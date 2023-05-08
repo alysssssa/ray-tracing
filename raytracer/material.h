@@ -16,6 +16,10 @@ class material {
         virtual bool scatter(
             const ray& r_in, const hit_record& rec, colour& attenuation, ray& scattered
         ) const = 0;
+
+        virtual colour emitted(double u, double v, const point3& p) const {
+            return {0,0,0};
+        }
 };
 
 class lambertian : public material {
@@ -97,6 +101,25 @@ class dielectric : public material {
             return r0 + (1-r0)*pow((1 - cosine),5);
         }
 
+};
+
+class diffuse_light : public material {
+    public:
+        explicit diffuse_light(shared_ptr<texture> a) : emit(a) {}
+        explicit diffuse_light(colour c) : emit(make_shared<solid_colour>(c)) {}
+
+        virtual bool scatter(
+            const ray& r_in, const hit_record& rec, colour& attenuation, ray& scattered
+        ) const override {
+            return false;
+        }
+
+        virtual colour emitted(double u, double v, const point3& p) const override {
+            return emit->value(u, v, p);
+        }
+
+    public:
+        shared_ptr<texture> emit;
 };
 
 #endif // MATERIAL_H

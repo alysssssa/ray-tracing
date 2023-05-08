@@ -7,6 +7,7 @@
 #include "material.h"
 #include "moving_sphere.h"
 #include "bvh.h"
+#include "aarect.h"
 
 #include <iostream>
 
@@ -15,29 +16,26 @@
 // 2. determine which objects the ray intersects
 // 3. compute a colour for that intersection point
 
-colour ray_colour(const ray& r, const hittable& world, int depth) {
+colour ray_colour(const ray& r, const colour& background, const hittable& world, int depth) {
     hit_record rec;
 
     // limit the maximum recursion depth, returning no light contribution at the maximum depth
     if (depth <= 0)
         return {0,0,0};
 
-    // generating a random diffuse bounce ray from hit point to random point (on the unit sphere from center p+n)
+    // if the ray hits nothing, return the background colour
     // shadow acne: ignore hits very near zero (t_min = 0.001)
-    if (world.hit(r, 0.001, infinity, rec)) {
-        ray scattered;
-        colour attenuation;
-        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-            return attenuation * ray_colour(scattered, world, depth-1);
-        return {0,0,0};
-    }
+    if (!world.hit(r, 0.001, infinity, rec))
+        return background;
 
-    // return colour of the background
-    vec3 unit_direction = unit_vector(r.direction());
-    auto t = 0.5*(unit_direction.y() + 1.0);
-    // linear interpolation between white (t=0) and blue (t=1)
-    // blended_value = (1-t)*start_value + t*end_value
-    return (1.0-t)*colour(1.0, 1.0, 1.0) + t*colour(0.5, 0.7, 1.0);
+    ray scattered;
+    colour attenuation;
+    colour emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
+
+    if (!rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+        return emitted;
+
+    return emitted + attenuation * ray_colour(scattered, background, world, depth-1);
 }
 
 hittable_list random_scene() {
@@ -119,13 +117,27 @@ hittable_list earth() {
     return {globe};
 }
 
+hittable_list simple_light() {
+    hittable_list objects;
+
+    auto pertext = make_shared<noise_texture>(2);
+    objects.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(pertext)));
+    objects.add(make_shared<sphere>(point3(0,2,0), 2, make_shared<lambertian>(pertext)));
+
+    // light is brighter than (1,1,1) to allow it to be bright enough to light things
+    auto difflight = make_shared<diffuse_light>(colour(4,4,4));
+    objects.add(make_shared<xy_rect>(3, 5, 1, 3, -2, difflight));
+
+    return objects;
+}
+
 int main() {
 
     // write output image in ppm
     const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 50;
+    const int samples_per_pixel = 400;
     const int max_depth = 50;
 
     // world
@@ -135,10 +147,12 @@ int main() {
     point3 lookat;
     auto vfov = 40.0;
     auto aperture = 0.0;
+    colour background(0,0,0);
 
     switch (0) {
         case 1:
             world = random_scene();
+            background = colour(0.70, 0.80, 1.00);
             lookfrom = point3(13,2,3);
             lookat = point3(0,0,0);
             vfov = 20.0;
@@ -147,6 +161,7 @@ int main() {
 
         case 2:
             world = two_spheres();
+            background = colour(0.70, 0.80, 1.00);
             lookfrom = point3(13,2,3);
             lookat = point3(0,0,0);
             vfov = 20.0;
@@ -154,19 +169,28 @@ int main() {
 
         case 3:
             world = two_perlin_spheres();
+            background = colour(0.70, 0.80, 1.00);
+            lookfrom = point3(13,2,3);
+            lookat = point3(0,0,0);
+            vfov = 20.0;
+            break;
+
+        case 4:
+            world = earth();
+            background = colour(0.70, 0.80, 1.00);
             lookfrom = point3(13,2,3);
             lookat = point3(0,0,0);
             vfov = 20.0;
             break;
 
         default:
-        case 4:
-            world = earth();
-            lookfrom = point3(13,2,3);
-            lookat = point3(0,0,0);
+        case 5:
+            background = colour(0,0,0);
+            world = simple_light();
+            lookfrom = point3(26,3,6);
+            lookat = point3(0,2,0);
             vfov = 20.0;
             break;
-
     }
 
     // camera with depth of field
@@ -189,7 +213,7 @@ int main() {
                 auto u = (i + random_double()) / (image_width-1);
                 auto v = (j + random_double()) / (image_height-1);
                 ray r = cam.get_ray(u, v);
-                pixel_colour += ray_colour(r, world, max_depth);
+                pixel_colour += ray_colour(r, background, world, max_depth);
             }
             write_colour(std::cout, pixel_colour, samples_per_pixel);
         }

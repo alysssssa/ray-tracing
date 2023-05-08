@@ -122,4 +122,22 @@ class diffuse_light : public material {
         shared_ptr<texture> emit;
 };
 
+// the scattering function of isotropic picks a uniform random direction
+class isotropic : public material {
+    public:
+        explicit isotropic(colour c) : albedo(make_shared<solid_colour>(c)) {}
+        explicit isotropic(shared_ptr<texture> a) : albedo(a) {}
+
+        virtual bool scatter(
+            const ray& r_in, const hit_record& rec, colour& attenuation, ray& scattered
+        ) const override {
+            scattered = ray(rec.p, random_in_unit_sphere(), r_in.time());
+            attenuation = albedo->value(rec.u, rec.v, rec.p);
+            return true;
+        }
+
+    public:
+        shared_ptr<texture> albedo;
+};
+
 #endif // MATERIAL_H

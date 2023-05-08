@@ -8,6 +8,7 @@
 #include "moving_sphere.h"
 #include "bvh.h"
 #include "aarect.h"
+#include "box.h"
 
 #include <iostream>
 
@@ -146,6 +147,9 @@ hittable_list cornell_box() {
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
     objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
+    objects.add(make_shared<box>(point3(130, 0, 65), point3(295, 165, 230), white));
+    objects.add(make_shared<box>(point3(265, 0, 295), point3(430, 330, 460), white));
+
     return objects;
 }
 
@@ -156,7 +160,7 @@ int main() {
     // const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 600;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 200;
+    const int samples_per_pixel = 50;
     const int max_depth = 50;
 
     // world

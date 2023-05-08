@@ -131,13 +131,32 @@ hittable_list simple_light() {
     return objects;
 }
 
+hittable_list cornell_box() {
+    hittable_list objects;
+
+    auto red = make_shared<lambertian>(colour(.65, .05, .05));
+    auto white = make_shared<lambertian>(colour(.73, .73, .73));
+    auto green = make_shared<lambertian>(colour(.12, .45, .15));
+    auto light = make_shared<diffuse_light>(colour(15, 15, 15));
+
+    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
+    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
+    objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
+    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
+    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
+    objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
+
+    return objects;
+}
+
 int main() {
 
     // write output image in ppm
-    const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 400;
+    const auto aspect_ratio = 1.0;
+    // const auto aspect_ratio = 16.0 / 9.0;
+    const int image_width = 600;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 400;
+    const int samples_per_pixel = 200;
     const int max_depth = 50;
 
     // world
@@ -183,13 +202,21 @@ int main() {
             vfov = 20.0;
             break;
 
-        default:
         case 5:
             background = colour(0,0,0);
             world = simple_light();
             lookfrom = point3(26,3,6);
             lookat = point3(0,2,0);
             vfov = 20.0;
+            break;
+
+        default:
+        case 6:
+            world = cornell_box();
+            background = colour(0,0,0);
+            lookfrom = point3(278, 278, -800);
+            lookat = point3(278, 278, 0);
+            vfov = 40.0;
             break;
     }
 

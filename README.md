@@ -55,3 +55,6 @@ hittable_list earth() {
 
 #### 💫 Instances
 `Now that we have boxes, we need to rotate them a bit to have them match the real Cornell box. In ray tracing, this is usually done with an instance. An instance is a geometric primitive that has been moved or rotated somehow. This is especially easy in ray tracing because we don’t move anything; instead we move the rays in the opposite direction. For example, consider a translation (often called a move). We could take the pink box at the origin and add 2 to all its x components, or (as we almost always do in ray tracing) leave the box where it is, but in its hit routine subtract 2 off the x-component of the ray origin.`
+
+#### 😶‍🌫️ Volumes
+One thing it’s nice to add to a ray tracer is smoke/fog/mist. These are sometimes called volumes or participating media. Another feature that is nice to add is subsurface scattering, which is sort of like dense fog inside an object. This usually adds software architectural mayhem because volumes are a different animal than surfaces, but a cute technique is to make a volume a random surface. A bunch of smoke can be replaced with a surface that probabilistically might or might not be there at every point in the volume.

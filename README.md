@@ -4,6 +4,8 @@ Learning from *Ray Tracing in One Weekend* in many many weekends
 
 https://raytracing.github.io/
 
+<img src="glass-in-cornell-box.png" width="500">
+
 > In graphics, you almost always want your formulas to be in terms of vectors so all the x/y/z stuff is under the hood in the vec3 class.
 
 
